@@ -1,0 +1,102 @@
+graph TD
+    %% --- Definitions of Styles ---
+    classDef coreAgent fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
+    classDef reasoning fill:#bbdefb,stroke:#1976d2,stroke-width:3px,color:#0d47a1;
+    classDef perception fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20;
+    classDef action fill:#ffecb3,stroke:#ffa000,stroke-width:2px,color:#bf360c;
+    classDef learning fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+    classDef governance fill:#fbe9e7,stroke:#d84315,stroke-width:2px,stroke-dasharray: 5 5,color:#bf360c;
+    classDef external fill:#eceff1,stroke:#546e7a,stroke-width:1px,color:#37474f;
+
+    %% --- External Inputs/Environment ---
+    subgraph EXT_ENV ["External Environment"]
+        NEW_TICKET[New Ticket / Incidents]:::external
+        IT_INFRA[Live IT Infrastructure<br>Clusters, Builds, Logs]:::external
+        HUMAN_ENG[Human Engineer]:::external
+    end
+
+    %% --- Governance and Operational Layer Wrapper ---
+    subgraph GOV_LAYER ["Governance & Operational Layer"]
+        style GOV_LAYER fill:none,stroke:#d84315,stroke-width:2px,stroke-dasharray: 5 5;
+
+        %% --- The Core Agent (Cognitive Loop) ---
+        subgraph CORE_AGENT ["Core Agent Architecture"]
+            style CORE_AGENT fill:none,stroke:#0288d1,stroke-width:2px;
+
+            %% 1. REASONING CORE
+            LLM_BRAIN(<b>Reasoning & Planning Core</b><br>LLM w/ CoT Training<br>Severity Calibration & Strategy):::reasoning
+
+            %% 2. PERCEPTION
+            subgraph PERCEPTION_PHASE ["Perception Phase"]
+                NLP_PROC(Text Perception<br>NLP)
+                RAG_ENGINE(Agentic RAG Engine<br>Context Retrieval)
+                VECTOR_DB[(Vector Store<br>Long-Term Memory)]
+            end
+            class NLP_PROC,RAG_ENGINE,VECTOR_DB perception;
+
+            %% 3. ACTION
+            subgraph ACTION_PHASE ["Action Phase"]
+                ORCHESTRATOR{Tool Orchestration Layer}
+                API_TOOLS[API Tools<br>ITSM/Jira/CRM]
+                SHELL_TOOLS[High-Risk Tools<br>Local Shell/Code Interpreter]
+            end
+            class ORCHESTRATOR,API_TOOLS,SHELL_TOOLS action;
+
+            %% 4. LEARNING
+            subgraph LEARNING_LOOP ["Continuous Learning Loop"]
+                SEMANTIC_MEM[(Semantic Memory<br>Knowledge Base)]
+                RL_MODULE(Reinforcement Learning<br>Reward Signal Assessment)
+            end
+            class SEMANTIC_MEM,RL_MODULE learning;
+        end
+
+        %% --- Governance Components ---
+        subgraph RISK_MITIGATION ["Risk Mitigation & Integrity"]
+            SANDBOX[Sandboxing & Testing Environment]:::governance
+            AUDIT_LOGS[Audit Logs & Rollback Mechanisms]:::governance
+            VALIDATION_GUARD[Data Integrity & Privacy Guardrails<br>Prevent Fabrication]:::governance
+        end
+
+        subgraph UI_DESIGN ["User Interaction Design"]
+            AUI_COPILOT(Adaptive UI & Incident Copilot<br>Reveal Dimensions / Highlight Entities):::governance
+            CONFIRM_GATE{Action Confirmation Gate<br>HITL Complete This Pattern}:::governance
+        end
+    end
+
+    %% --- MAIN FLOWS ---
+
+    %% Perception Flow
+    NEW_TICKET --> NLP_PROC
+    IT_INFRA --Real-time Logs/Data--> RAG_ENGINE
+    NLP_PROC --> RAG_ENGINE
+    RAG_ENGINE <-->|Retrieve History/Context| VECTOR_DB
+    RAG_ENGINE ==Grounded Context==> LLM_BRAIN
+
+    %% Reasoning Flow
+    LLM_BRAIN ==Strategic Plan / Next Step==> ORCHESTRATOR
+
+    %% Action Flow
+    ORCHESTRATOR --Route Task--> API_TOOLS & SHELL_TOOLS
+    API_TOOLS -->|Safe Actions| AUDIT_LOGS
+    SHELL_TOOLS --High-Risk Commands--> SANDBOX
+
+    %% Governance Gates to External
+    SANDBOX --Verified Commands--> IT_INFRA
+    AUDIT_LOGS --> IT_INFRA
+    IT_INFRA --Outcome Data--> RL_MODULE
+
+    %% Human Interaction & Feedback Flow
+    LLM_BRAIN --Suggested Solutions--> AUI_COPILOT
+    AUI_COPILOT --> HUMAN_ENG
+    HUMAN_ENG --Approval/Edit--> CONFIRM_GATE
+    CONFIRM_GATE --Authorized Action--> ORCHESTRATOR
+    HUMAN_ENG --HITL Feedback--> RL_MODULE
+
+    %% Learning Flow
+    RL_MODULE --Reward/Penalty--> SEMANTIC_MEM
+    SEMANTIC_MEM --Updated Knowledge Rules--> LLM_BRAIN
+    VALIDATION_GUARD -.-> RAG_ENGINE
+    VALIDATION_GUARD -.-> LLM_BRAIN
+
+    %% Links for clarity in positioning
+    VALIDATION_GUARD ~~~ AUDIT_LOGS
