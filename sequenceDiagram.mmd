@@ -1,0 +1,56 @@
+sequenceDiagram
+    autonumber
+    %% --- Actors & Components ---
+    actor Human as Human Engineer
+    participant Infra as IT Infrastructure
+    participant Ticket as Ticket System
+    participant Perc as Perception Layer<br>(NLP + RAG)
+    participant Brain as Core Agent<br>(LLM Reasoning)
+    participant UI as UI & Gate<br>(Copilot + Audit)
+    participant Tools as Orchestration<br>(Shell/API/Sandbox)
+    participant Mem as Learning Module<br>(RL + Memory)
+
+    %% --- Step 1: Incident Detection ---
+    Note over Infra, Perc: 1. Incident Detection Phase
+    Infra->>Ticket: 1.1 Trigger Incident Alert (Logs/Metrics)
+    Ticket->>Perc: 1.2 Send Ticket Description
+    activate Perc
+    Perc->>Perc: Retrieve Context (Vector DB)
+    Perc->>Brain: 1.3 Send Grounded Context + Prompt
+    deactivate Perc
+
+    %% --- Step 2: Reasoning & Planning ---
+    Note over Brain, Human: 2. Strategy Phase
+    activate Brain
+    Brain->>Brain: Chain of Thought (CoT)<br>Calibrate Severity
+    Brain->>UI: 2.1 Propose Remediation Plan
+    deactivate Brain
+
+    %% --- Step 3: Human-in-the-Loop (Governance) ---
+    activate UI
+    UI->>Human: 2.2 Display Plan (Adaptive UI)
+    Human->>UI: 2.3 Approve Action (HITL)
+    UI->>UI: Log Approval in Audit Trail
+    UI->>Tools: 2.4 Authorize Execution
+    deactivate UI
+
+    %% --- Step 4: Execution ---
+    Note over Tools, Infra: 3. Execution Phase
+    activate Tools
+    alt High Risk Command
+        Tools->>Tools: Run in Sandbox
+        Tools->>Infra: Apply Verified Fix
+    else Safe API Call
+        Tools->>Infra: Execute API Request
+    end
+    deactivate Tools
+
+    %% --- Step 5: Feedback Loop ---
+    Note over Infra, Mem: 4. Learning Phase
+    Infra-->>Mem: 4.1 Return Outcome/Logs
+    activate Mem
+    Mem->>Mem: Calculate Reward Signal
+    Mem->>Brain: 4.2 Update Semantic Memory/Rules
+    deactivate Mem
+    
+    Note right of Brain: Agent is now smarter<br>for next ticket.
